@@ -1,0 +1,10 @@
+[staging:children]
+ubuntu
+
+[ubuntu:children]
+group_test
+
+[group_test]
+192.168.0.121
+192.168.0.122
+192.168.0.123

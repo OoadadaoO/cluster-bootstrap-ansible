@@ -1,0 +1,5 @@
+---
+# defaults file for roles/shell
+shell_starship_configure: true
+
+shell_zsh_path: /usr/bin/zsh

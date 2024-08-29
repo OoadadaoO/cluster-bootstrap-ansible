@@ -1,0 +1,6 @@
+---
+# defaults file for apt
+apt_nano_configure: true
+apt_git_configure: true
+apt_curl_configure: true
+apt_qemu_configure: true

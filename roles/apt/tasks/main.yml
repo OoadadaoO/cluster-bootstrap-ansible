@@ -1,0 +1,34 @@
+---
+# tasks file for roles/apt
+- name: Update apt cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Ensure nano is installed
+  become: true
+  ansible.builtin.apt:
+    name: nano
+    state: present
+  when: apt_nano_configure
+
+- name: Ensure git is installed
+  become: true
+  ansible.builtin.apt:
+    name: git
+    state: present
+  when: apt_git_configure
+
+- name: Ensure curl is installed
+  become: true
+  ansible.builtin.apt:
+    name: curl
+    state: present
+  when: apt_git_configure
+
+- name: Ensure qemu is installed
+  become: true
+  ansible.builtin.apt:
+    name: qemu-guest-agent
+    state: present
+  when: apt_qemu_configure

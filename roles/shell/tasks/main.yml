@@ -1,0 +1,78 @@
+---
+# tasks file for roles/shell
+- name: Ensure zsh is installed
+  become: true
+  ansible.builtin.apt:
+    name: zsh
+    state: present
+    update_cache: true
+
+- name: Set zsh as default shell
+  become: true
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    shell: "{{ shell_zsh_path }}"
+
+- name: Check ~/.zshrc exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+  register: zshrc
+
+- name: Ensure ~/.zshrc exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    state: touch
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: not zshrc.stat.exists
+
+- name: Download Starship install script
+  become: true
+  ansible.builtin.get_url:
+    url: https://starship.rs/install.sh
+    dest: /tmp/starship_install.sh
+    mode: "0755"
+  when: shell_starship_configure
+
+- name: Install Starship
+  become: true
+  ansible.builtin.command:
+    cmd: "/tmp/starship_install.sh -y"
+    creates: /usr/local/bin/starship
+  when: shell_starship_configure
+
+- name: Ensure Starship set in ~/.zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'eval "$(starship init zsh)"'
+    create: true
+    state: present
+    mode: "0644"
+  when: shell_starship_configure
+
+- name: Ensure Starship config directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+  when: shell_starship_configure
+
+- name: Create Starship config file
+  ansible.builtin.copy:
+    src: starship.toml
+    dest: "{{ ansible_env.HOME }}/.config/starship.toml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+  when: shell_starship_configure
+# ansible.builtin.template:
+#   src: starship.toml.j2
+#   dest: "{{ ansible_env.HOME }}/.config/starship.toml"
+#   owner: "{{ ansible_user }}"
+#   group: "{{ ansible_user }}"
+#   mode: "0644"
+#   state: file
+# notify: Apply Starship configuration

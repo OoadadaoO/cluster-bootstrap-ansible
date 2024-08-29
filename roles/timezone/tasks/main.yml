@@ -1,0 +1,27 @@
+---
+# tasks file for roles/timezone
+- name: Set timezone
+  become: true
+  community.general.timezone:
+    name: "{{ timezone_value }}"
+
+- name: Ensure timesyncd is stopped
+  become: true
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    state: stopped
+
+- name: Copy over the timesyncd config
+  become: true
+  ansible.builtin.copy:
+    src: "timesyncd.conf"
+    dest: /etc/systemd/timesyncd.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure timesyncd is started
+  become: true
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    state: started
